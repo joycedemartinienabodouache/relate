@@ -13,8 +13,8 @@ class ShimmeringLogo extends StatelessWidget {
       child: Shimmer.fromColors(
         baseColor: Variables.blackColor,
         highlightColor: Colors.white,
-        child: Image.asset("assets/app_logo.png"),
-        period: Duration(seconds: 1),
+        child: Image.asset("assets/background.jpg"),
+        period: Duration(seconds: 3),
       ),
     );
   }

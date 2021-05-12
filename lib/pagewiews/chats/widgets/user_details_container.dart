@@ -1,5 +1,3 @@
-
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,16 +8,17 @@ import 'package:relate/provider/user_provider.dart';
 import 'package:relate/resources/firebase_repository.dart';
 import 'package:relate/screens/LoginScreen.dart';
 import 'package:relate/screens/chatscreens/widgets/cached_image.dart';
+import 'package:relate/utils/variables.dart';
 import 'package:relate/widgets/custom_appbar.dart';
+import 'package:relate/widgets/header_curved_container.dart';
 
 class UserDetailsContainer extends StatelessWidget {
-
   final FirebaseRepository _repository = FirebaseRepository();
 
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////sign out debug needed
     signOut() async {
       final bool isLoggedOut = await FirebaseRepository().signOut();
       if (isLoggedOut) {
@@ -30,10 +29,12 @@ class UserDetailsContainer extends StatelessWidget {
         );
 
         // move the user to login screen
-        Navigator.pushAndRemoveUntil( //This transfers the user to a desired page and removes the previous pages from the navigator stack
+        Navigator.pushAndRemoveUntil(
+          //This transfers the user to a desired page and removes the previous pages from the navigator stack
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
-              (Route<dynamic> route) => false, //clear all previous pages when returns false...
+          (Route<dynamic> route) =>
+              false, //clear all previous pages when returns false...
         );
       }
     }
@@ -54,7 +55,7 @@ class UserDetailsContainer extends StatelessWidget {
             title: ShimmeringLogo(),
             actions: <Widget>[
               FlatButton(
-                onPressed: () => signOut(),
+                onPressed: () async => await signOut(),
                 child: Text(
                   "Log Out",
                   style: TextStyle(color: Colors.white, fontSize: 12),
@@ -75,36 +76,97 @@ class UserDetailsBody extends StatelessWidget {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
     final Users user = userProvider.getUser;
 
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      child: Row(
+    return Expanded(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          CachedImage(
-            user.profilePhoto,
-            isRound: true,
-            radius: 50,
+          CustomPaint(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+            ),
+            painter: HeaderCurvedContainer(),
           ),
-          SizedBox(width: 15),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                user.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.white,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  "Profile",
+                  style: TextStyle(
+                    fontSize: 30,
+                    letterSpacing: 1.5,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
-                user.email,
-                style: TextStyle(fontSize: 14, color: Colors.white),
+              Container(
+                padding: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width / 2.5,
+                height: MediaQuery.of(context).size.width / 2.5,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 5,
+                  ),
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(user.profilePhoto),
+                  ),
+                ),
               ),
             ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 150, left: 130),
+            child: CircleAvatar(
+              backgroundColor: Variables.blackColor,
+              child: IconButton(
+                icon: Icon(Icons.edit),
+                //////////////////////////////////////////implement edition of profile picture
+                onPressed: (){},
+              ),
+            ),
           ),
         ],
       ),
     );
+
+    // return Container(
+    //   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    //   child: Row(
+    //     children: [
+    //       CachedImage(
+    //         user.profilePhoto,
+    //         isRound: true,
+    //         radius: 50,
+    //       ),
+    //       SizedBox(width: 15),
+    //       Column(
+    //         crossAxisAlignment: CrossAxisAlignment.start,
+    //         children: <Widget>[
+    //           Text(
+    //             user.name,
+    //             style: TextStyle(
+    //               fontWeight: FontWeight.bold,
+    //               fontSize: 18,
+    //               color: Colors.white,
+    //             ),
+    //           ),
+    //           SizedBox(height: 10),
+    //           Text(
+    //             user.email,
+    //             style: TextStyle(fontSize: 14, color: Colors.white),
+    //           ),
+    //         ],
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }
+

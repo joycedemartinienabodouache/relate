@@ -15,7 +15,8 @@ class UserCircle extends StatelessWidget {
     return GestureDetector(
       onTap: () => showModalBottomSheet(
         context: context,
-          backgroundColor: Variables.blackColor,
+          // backgroundColor: Variables.blackColor,
+        backgroundColor: Colors.white70,
           builder:(context) => UserDetailsContainer(),
           isScrollControlled: true,
       ),
