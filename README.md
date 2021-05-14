@@ -1,6 +1,6 @@
 # relate
 
-A new Flutter application.
+A Social media messaging and call application
 
 ## Getting Started
 
