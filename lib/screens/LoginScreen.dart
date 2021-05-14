@@ -11,6 +11,7 @@ import 'package:relate/models/user.dart';
 import 'package:relate/resources/firebase_repository.dart';
 import 'package:relate/screens/HomeScreen.dart';
 import 'package:relate/screens/login_verification.dart';
+import 'package:relate/screens/splash_screen.dart';
 import 'package:relate/utils/variables.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -199,13 +200,13 @@ class _LoginScreenState extends State<LoginScreen> {
         _repository.addDataToDb(user).then((value) {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) {
-                return HomeScreen();
+                return SplashScreen();
               }));
         });
       } else {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) {
-              return HomeScreen();
+              return SplashScreen();
               // return HomeScreen();
             }));
       }

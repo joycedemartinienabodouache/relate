@@ -308,13 +308,15 @@ class ChatListContainer extends StatelessWidget {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
     return Container(
+      // color: Colors.yellow,
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white30,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),
+
       ),
       child: StreamBuilder<QuerySnapshot>(
           stream: _chatMethods.fetchContacts(

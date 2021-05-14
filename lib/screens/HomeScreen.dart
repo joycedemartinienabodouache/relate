@@ -33,25 +33,26 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    SchedulerBinding.instance.addPostFrameCallback((_) async { //ensures that the content is loaded just after the frames are generated
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      //ensures that the content is loaded just after the frames are generated
 
       await userProvider.refreshUser();
       _repository.setUserState(
-          userId: userProvider.getUser.uid,
-          userState: UserState.Online,
+        userId: userProvider.getUser.uid,
+        userState: UserState.Online,
       );
 
       LogRepository.init(
-          isHive: false,
-          dbName: userProvider.getUser.uid,
+        isHive: false,
+        dbName: userProvider.getUser.uid,
       );
-
     });
 
     WidgetsBinding.instance.addObserver(this);
 
     pageController = PageController();
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -64,9 +65,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // TODO: implement didChangeAppLifecycleState
 
     String currentUserId =
-    (userProvider != null && userProvider.getUser != null)
-        ? userProvider.getUser.uid
-        : "";
+        (userProvider != null && userProvider.getUser != null)
+            ? userProvider.getUser.uid
+            : "";
 
     super.didChangeAppLifecycleState(state);
 
@@ -74,25 +75,25 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         currentUserId != null
             ? _repository.setUserState(
-            userId: currentUserId, userState: UserState.Online)
+                userId: currentUserId, userState: UserState.Online)
             : print("resumed state");
         break;
       case AppLifecycleState.inactive:
         currentUserId != null
             ? _repository.setUserState(
-            userId: currentUserId, userState: UserState.Offline)
+                userId: currentUserId, userState: UserState.Offline)
             : print("inactive state");
         break;
       case AppLifecycleState.paused:
         currentUserId != null
             ? _repository.setUserState(
-            userId: currentUserId, userState: UserState.Waiting)
+                userId: currentUserId, userState: UserState.Waiting)
             : print("paused state");
         break;
       case AppLifecycleState.detached:
         currentUserId != null
             ? _repository.setUserState(
-            userId: currentUserId, userState: UserState.Offline)
+                userId: currentUserId, userState: UserState.Offline)
             : print("detached state");
         break;
     }
@@ -102,6 +103,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     double labelFontSize = 10;
+
 
     return PickupLayout(
       scaffold: Stack(
@@ -113,195 +115,211 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             fit: BoxFit.cover,
           ),
           Scaffold(
+            // floatingActionButtonLocation: ,
+            floatingActionButton: FloatingActionButton(
 
-          backgroundColor: Colors.transparent,
-          body: PageView(
-            children: [
-              ChatListPage(),//set the chat list screen
-              LogScreen(),
-              // Center(
-              //   child: ContactList(),
-              // ),
-            ],
-            controller: pageController,
-            onPageChanged: onPageChanged,
-          ),
+              elevation: 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)
+              ),
+              onPressed: () {  },
 
+              child: Container(
 
-          bottomNavigationBar: Container(
-            color: Variables.blackColor,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: CupertinoTabBar(
-                backgroundColor: Variables.blackColor,
-                items: <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.chat,
-                        color: (page == 0)
-                            ? Variables.lightBlueColor
-                            : Variables.greyColor),
-                    title: Text(
-                      "Chats",
-                      style: TextStyle(
-                          fontSize: labelFontSize,
-                          color: (page == 0)
-                              ? Variables.lightBlueColor
-                              : Colors.grey),
-                    ),
+                height: 70,
+                width: 70,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/app_logo.png"),
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.call,
-                        color: (page == 1)
-                            ? Variables.lightBlueColor
-                            : Variables.greyColor),
-                    title: Text(
-                      "Calls",
-                      style: TextStyle(
-                          fontSize: labelFontSize,
-                          color: (page == 1)
-                              ? Variables.lightBlueColor
-                              : Colors.grey),
-                    ),
-                  ),
-                  // BottomNavigationBarItem(
-                  //   icon: Icon(Icons.contact_phone,
-                  //       color: (page == 2)
-                  //           ? Variables.lightBlueColor
-                  //           : Variables.greyColor),
-                  //   title: Text(
-                  //     "Contacts",
-                  //     style: TextStyle(
-                  //         fontSize: labelFontSize,
-                  //         color: (page == 2)
-                  //             ? Variables.lightBlueColor
-                  //             : Colors.grey),
-                  //   ),
-                  // ),
-                  BottomNavigationBarItem(
-                      icon: UserCircle(),
-                      label: "Profile",
-                  ),
-                ],
-                onTap: navigationTapped,
-                currentIndex: page,
+                ),
               ),
             ),
-          ),
+            backgroundColor: Colors.transparent,
+            body: PageView(
+              children: [
+                ChatListPage(), //set the chat list screen
+                LogScreen(),
+                // Center(
+                //   child: ContactList(),
+                // ),
+              ],
+              controller: pageController,
+              onPageChanged: onPageChanged,
+            ),
 
+            bottomNavigationBar: Container(
+              color: Variables.blackColor,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: CupertinoTabBar(
+                  backgroundColor: Variables.blackColor,
+                  items: <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.chat,
+                          color: (page == 0)
+                              ? Variables.lightBlueColor
+                              : Variables.greyColor),
+                      title: Text(
+                        "Chats",
+                        style: TextStyle(
+                            fontSize: labelFontSize,
+                            color: (page == 0)
+                                ? Variables.lightBlueColor
+                                : Colors.grey),
+                      ),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.call,
+                          color: (page == 1)
+                              ? Variables.lightBlueColor
+                              : Variables.greyColor),
+                      title: Text(
+                        "Calls",
+                        style: TextStyle(
+                            fontSize: labelFontSize,
+                            color: (page == 1)
+                                ? Variables.lightBlueColor
+                                : Colors.grey),
+                      ),
+                    ),
+                    // BottomNavigationBarItem(
+                    //   icon: Icon(Icons.contact_phone,
+                    //       color: (page == 2)
+                    //           ? Variables.lightBlueColor
+                    //           : Variables.greyColor),
+                    //   title: Text(
+                    //     "Contacts",
+                    //     style: TextStyle(
+                    //         fontSize: labelFontSize,
+                    //         color: (page == 2)
+                    //             ? Variables.lightBlueColor
+                    //             : Colors.grey),
+                    //   ),
+                    // ),
+                    BottomNavigationBarItem(
+                      icon: UserCircle(),
+                      label: "Profile",
+                    ),
+                  ],
+                  onTap: navigationTapped,
+                  currentIndex: page,
+                ),
+              ),
+            ),
 
-          // Container(
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.all(Radius.circular(90.0)),
-          //         color: Variables.senderColor,
-          //         // boxShadow: Box
-          //   ),
-
+            // Container(
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.all(Radius.circular(90.0)),
+            //         color: Variables.senderColor,
+            //         // boxShadow: Box
+            //   ),
 
             // child:
             // Padding(
 
-              // padding: EdgeInsets.symmetric(vertical: 9),
-              // // child: Container(
-              // //
-              // //   decoration: BoxDecoration(
-              // //     borderRadius: BorderRadius.all(Radius.circular(90.0)),
-              // //     color: Variables.greyColor,
-              // //
-              // //   ),
-              //
-              //   child:
-              //   CupertinoTabBar(
-              //
-              //
-              //     backgroundColor: Variables.senderColor,
-              //
-              //     items: <BottomNavigationBarItem>[
-              //
-              //       //chat b-nav bar item
-              //       BottomNavigationBarItem(
-              //         icon: Icon(
-              //           Icons.chat,
-              //           color: (page == 0)
-              //               ? Variables
-              //                   .lightBlueColor //sets the color of a button to blue when it is selected
-              //               : Variables
-              //                   .greyColor, // set the color of the button to grey when it is not selected
-              //         ),
-              //         title: Text(
-              //           "Chats",
-              //           style: TextStyle(
-              //             fontSize: labelFontSize,
-              //             color: (page == 0)
-              //                 ? Variables
-              //                     .lightBlueColor //sets the color of the text label to blue when it is selected
-              //                 : Variables
-              //                     .greyColor, // set the color of the text label to grey when it is not selected
-              //           ),
-              //         ),
-              //       ),
-              //
-              //       //call log b-nav bar item
-              //       BottomNavigationBarItem(
-              //         icon: Icon(
-              //           Icons.call,
-              //           color: (page == 1)
-              //               ? Variables
-              //               .lightBlueColor //sets the color of a button to blue when it is selected
-              //               : Variables
-              //               .greyColor, // set the color of the button to grey when it is not selected
-              //         ),
-              //         title: Text(
-              //           "Calls",
-              //           style: TextStyle(
-              //             fontSize: labelFontSize,
-              //             color: (page == 1)
-              //                 ? Variables
-              //                 .lightBlueColor //sets the color of the text label to blue when it is selected
-              //                 : Variables
-              //                 .greyColor, // set the color of the text label to grey when it is not selected
-              //           ),
-              //         ),
-              //       ),
-              //
-              //       //contact list b-nav bar item
-              //       BottomNavigationBarItem(
-              //         icon: Icon(
-              //           Icons.contact_phone,
-              //           color: (page == 2)
-              //               ? Variables
-              //               .lightBlueColor //sets the color of a button to blue when it is selected
-              //               : Variables
-              //               .greyColor, // set the color of the button to grey when it is not selected
-              //         ),
-              //         title: Text(
-              //           "Contacts",
-              //           style: TextStyle(
-              //             fontSize: labelFontSize,
-              //             color: (page == 2)
-              //                 ? Variables
-              //                 .lightBlueColor //sets the color of the text label to blue when it is selected
-              //                 : Variables
-              //                 .greyColor, // set the color of the text label to grey when it is not selected
-              //           ),
-              //         ),
-              //       ),
-              //       BottomNavigationBarItem(
-              //           icon: UserCircle(),
-              //         label: "Profile",
-              //
-              //         ),
-              //
-              //
-              //
-              //     ],
-              //
-              //     onTap: navigationTapped,
-              //     currentIndex: page,
-              //   ),
-              // ),
+            // padding: EdgeInsets.symmetric(vertical: 9),
+            // // child: Container(
+            // //
+            // //   decoration: BoxDecoration(
+            // //     borderRadius: BorderRadius.all(Radius.circular(90.0)),
+            // //     color: Variables.greyColor,
+            // //
+            // //   ),
+            //
+            //   child:
+            //   CupertinoTabBar(
+            //
+            //
+            //     backgroundColor: Variables.senderColor,
+            //
+            //     items: <BottomNavigationBarItem>[
+            //
+            //       //chat b-nav bar item
+            //       BottomNavigationBarItem(
+            //         icon: Icon(
+            //           Icons.chat,
+            //           color: (page == 0)
+            //               ? Variables
+            //                   .lightBlueColor //sets the color of a button to blue when it is selected
+            //               : Variables
+            //                   .greyColor, // set the color of the button to grey when it is not selected
+            //         ),
+            //         title: Text(
+            //           "Chats",
+            //           style: TextStyle(
+            //             fontSize: labelFontSize,
+            //             color: (page == 0)
+            //                 ? Variables
+            //                     .lightBlueColor //sets the color of the text label to blue when it is selected
+            //                 : Variables
+            //                     .greyColor, // set the color of the text label to grey when it is not selected
+            //           ),
+            //         ),
+            //       ),
+            //
+            //       //call log b-nav bar item
+            //       BottomNavigationBarItem(
+            //         icon: Icon(
+            //           Icons.call,
+            //           color: (page == 1)
+            //               ? Variables
+            //               .lightBlueColor //sets the color of a button to blue when it is selected
+            //               : Variables
+            //               .greyColor, // set the color of the button to grey when it is not selected
+            //         ),
+            //         title: Text(
+            //           "Calls",
+            //           style: TextStyle(
+            //             fontSize: labelFontSize,
+            //             color: (page == 1)
+            //                 ? Variables
+            //                 .lightBlueColor //sets the color of the text label to blue when it is selected
+            //                 : Variables
+            //                 .greyColor, // set the color of the text label to grey when it is not selected
+            //           ),
+            //         ),
+            //       ),
+            //
+            //       //contact list b-nav bar item
+            //       BottomNavigationBarItem(
+            //         icon: Icon(
+            //           Icons.contact_phone,
+            //           color: (page == 2)
+            //               ? Variables
+            //               .lightBlueColor //sets the color of a button to blue when it is selected
+            //               : Variables
+            //               .greyColor, // set the color of the button to grey when it is not selected
+            //         ),
+            //         title: Text(
+            //           "Contacts",
+            //           style: TextStyle(
+            //             fontSize: labelFontSize,
+            //             color: (page == 2)
+            //                 ? Variables
+            //                 .lightBlueColor //sets the color of the text label to blue when it is selected
+            //                 : Variables
+            //                 .greyColor, // set the color of the text label to grey when it is not selected
+            //           ),
+            //         ),
+            //       ),
+            //       BottomNavigationBarItem(
+            //           icon: UserCircle(),
+            //         label: "Profile",
+            //
+            //         ),
+            //
+            //
+            //
+            //     ],
+            //
+            //     onTap: navigationTapped,
+            //     currentIndex: page,
+            //   ),
             // ),
-          // ),
-        ),
+            // ),
+            // ),
+          ),
         ],
       ),
     );

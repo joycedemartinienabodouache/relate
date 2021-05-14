@@ -72,29 +72,34 @@ class ViewLayout extends StatelessWidget {
       title: Text(
         contact ?. name ?? "..",
         style: TextStyle(
-            color: Colors.black,
+            color: Colors.blueGrey,
             fontFamily: "Arial",
-            fontSize: 16
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
         ),
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: LastMessageContainer(
         stream: _chatMethods.fetchLastMessageBetween(
             senderId: userProvider.getUser.uid,
             receiverId: contact.uid),
       ),
-      leading: Container(
-        constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
-        child: Stack(
-          children: [
-            CachedImage(
-              contact.profilePhoto,
-              radius: 80,
-              isRound: true,
-            ),
-            OnlineDotIndicator(
-                uid: contact.uid
-            ),
-          ],
+      leading: Hero(
+        tag: "profilePhoto-${contact.profilePhoto}",
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
+          child: Stack(
+            children: [
+              CachedImage(
+                contact.profilePhoto,
+                radius: 80,
+                isRound: true,
+              ),
+              OnlineDotIndicator(
+                  uid: contact.uid
+              ),
+            ],
+          ),
         ),
       ),
 

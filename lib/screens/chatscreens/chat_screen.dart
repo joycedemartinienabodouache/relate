@@ -14,6 +14,7 @@ import 'package:relate/enum/view_state.dart';
 import 'package:relate/models/message.dart';
 import 'package:relate/models/user.dart';
 import 'package:relate/pagewiews/chats/calls/alert_dialog.dart';
+import 'package:relate/pagewiews/chats/widgets/online_dot_indicator.dart';
 import 'package:relate/provider/image_upload_provider.dart';
 import 'package:relate/resources/chat_methods.dart';
 import 'package:relate/resources/firebase_repository.dart';
@@ -23,6 +24,7 @@ import 'package:relate/utils/utilities.dart';
 import 'package:relate/utils/variables.dart';
 import 'package:relate/widgets/custom_appbar.dart';
 import 'package:relate/widgets/custom_tile.dart';
+import 'package:translator/translator.dart';
 
 import 'widgets/cached_image.dart';
 
@@ -36,7 +38,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  String translatedMessage;
+  // String translatedMessage;
   Users sender;
 
   ChatMethods _chatMethods = ChatMethods();
@@ -46,12 +48,27 @@ class _ChatScreenState extends State<ChatScreen> {
   FirebaseRepository _repository = FirebaseRepository();
   ScrollController _listScrollController = ScrollController();
 
+  GoogleTranslator translator = GoogleTranslator();
+
   ImageUploadProvider _imageUploadProvider;
+
+  ///Supported languages
+  static const Map<String, String> lang = {
+    "Hindi": "hi",
+    "English": "en",
+    "Urdu": "ur",
+    "French": "fr"
+  };
 
   bool grantRecording = true;
 
   bool isListening = false;
   // String text = "Press the button and start recording";
+
+  // void translate({@required String textToTranslate, @required String targetLanguage} ){
+  //   translator.translate(textToTranslate, to: targetLanguage)
+  //       .then((value) => );
+  // }
 
   @override
   void initState() {
@@ -78,24 +95,40 @@ class _ChatScreenState extends State<ChatScreen> {
         currentState; // track the current state of the currently logged user (online, waiting or offline)
     _imageUploadProvider = Provider.of<ImageUploadProvider>(context);
     currentState = _imageUploadProvider.getViewState;
-    return Scaffold(
-      backgroundColor: Variables.blackColor,
-      appBar: customAppBar(context),
-      body: Column(
-        children: [
-          Flexible(
-            child: messageList(),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpg"),
+              fit: BoxFit.fill,
+            ),
           ),
-          _imageUploadProvider.getViewState == ViewState.LOADING
-              ? Container(
-                  alignment: Alignment.centerRight,
-                  margin: EdgeInsets.only(right: 15),
-                  child: CircularProgressIndicator(),
-                )
-              : Container(),
-          chatControls(),
-        ],
-      ),
+        ),
+        Scaffold(
+          // backgroundColor: Variables.blackColor,
+          backgroundColor: Colors.black12,
+          appBar: customAppBar(
+              context), //////////////////////////////////////////////////////
+          body: Column(
+            children: [
+              Flexible(
+                child: GestureDetector(
+                    onTap: () => FocusScope.of(context).unfocus(),
+                    child: messageList()),
+              ),
+              _imageUploadProvider.getViewState == ViewState.LOADING
+                  ? Container(
+                      alignment: Alignment.centerRight,
+                      margin: EdgeInsets.only(right: 15),
+                      child: CircularProgressIndicator(),
+                    )
+                  : Container(),
+              chatControls(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -130,40 +163,160 @@ class _ChatScreenState extends State<ChatScreen> {
     Message _message = Message.fromMap(snapshot.data());
 
     return GestureDetector(
-      onLongPress: (){
-        ////////////////////////////////////////////////////////////////////delete message from the db
+      onDoubleTap: () {
+        ///////////////////////////////////////////////////////////////////////////////////text live translation
+        String translatedText;
+        TextEditingController textEditingController = TextEditingController();
+        textEditingController.text = _message.message;
+        String dropDownValue;
 
-        showDialog(context: context, builder: (context) => AlertDialog(content: Text("Delete the current message?"),actions: [
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+              title: Text("Translate Your Message"),
+              content: StatefulBuilder(builder: (context, setState) {
+                void translate() async {
+                  await translator
+                      .translate(textEditingController.text,
+                          to: "$dropDownValue")
+                      .then((value) => setState(() {
+                            translatedText = value.text;
+                          }));
+                }
 
-          FlatButton(onPressed: (){
-            _chatMethods.deleteMessage(
-                currentUserID: _currentUserID,
-                senderID: _message.senderID,
-                receiverID: _message.receiverID,
-                messageId: snapshot.id,
-                forEveryone: false,
-            );
-            Navigator.pop(context);
-          }, child: Text("DELETE FOR ME"),),
+                return Container(
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 5, right: 5),
+                        child: TextFormField(
+                          style: TextStyle(fontSize: 24),
+                          controller: textEditingController,
+                          decoration: InputDecoration(
+                            labelText: "Type Here",
+                            labelStyle: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text("Select Language here =>"),
+                          DropdownButton<String>(
+                            value: dropDownValue,
+                            icon: Icon(Icons.arrow_circle_down_rounded),
+                            iconSize: 24,
+                            elevation: 18,
+                            style: TextStyle(color: Colors.white),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.white,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                dropDownValue = newValue;
+                                translate();
+                              });
+                            },
+                            items: lang
+                                .map(
+                                  (string, value) => MapEntry(
+                                    string,
+                                    DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(string),
+                                    ),
+                                  ),
+                                )
+                                .values
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      Text("Translated Text"),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        translatedText == null
+                            ? "Please Select Language"
+                            : translatedText.toString(),
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send_rounded),
+                        onPressed: () {
 
-          FlatButton(onPressed: (){
-            Navigator.pop(context);
-          }, child: Text("CANCEL"),),
-
-          FlatButton(onPressed: (){
-            _chatMethods.deleteMessage(
-                currentUserID: _currentUserID,
-                senderID: _message.senderID,
-                receiverID: _message.receiverID,
-                messageId: snapshot.id,
-                forEveryone: true,
-            );
-            Navigator.pop(context);
-          }, child: Text("DELETE FOR EVERYONE"))
-
-        ],),);
-
-        },
+                          translatedText == null
+                              ? textFieldController.text = ""
+                              : textFieldController.text = translatedText;
+                          Navigator.pop(context);
+                          // this.setState(() {
+                          //   textFieldController.text = translatedText;
+                          // });
+                        },
+                      )
+                    ],
+                  ),
+                );
+              })),
+        );
+      },
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text("Delete the current message?"),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  _chatMethods.deleteMessage(
+                    currentUserID: _currentUserID,
+                    senderID: _message.senderID,
+                    receiverID: _message.receiverID,
+                    messageId: snapshot.id,
+                    forEveryone: false,
+                  );
+                  Navigator.pop(context);
+                },
+                child: Text("DELETE FOR ME"),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("CANCEL"),
+              ),
+              FlatButton(
+                  onPressed: () {
+                    _chatMethods.deleteMessage(
+                      currentUserID: _currentUserID,
+                      senderID: _message.senderID,
+                      receiverID: _message.receiverID,
+                      messageId: snapshot.id,
+                      forEveryone: true,
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Text("DELETE FOR EVERYONE"))
+            ],
+          ),
+        );
+      },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 15),
         child: Container(
@@ -200,27 +353,27 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  translate(String message) async {
-    if (message != null) {
-      await TranslationApi.translate(message, "auto", "fr").then((value) {
-        setState(() {
-          translatedMessage = value;
-        });
-      });
-    } else {
-      setState(() {
-        translatedMessage = "Could not translate the chat";
-      });
-      print(translatedMessage);
-    }
-  }
+  // translate(String message) async {
+  //   if (message != null) {
+  //     await TranslationApi.translate(message, "auto", "fr").then((value) {
+  //       setState(() {
+  //         translatedMessage = value;
+  //       });
+  //     });
+  //   } else {
+  //     setState(() {
+  //       translatedMessage = "Could not translate the chat";
+  //     });
+  //     print(translatedMessage);
+  //   }
+  // }
 
   getMessage(Message message) {
-    if (message.message != null) {
-      translate(message.message);
-    } else {
-      translatedMessage = "could not translate the message";
-    }
+    // if (message.message != null) {
+    //   translate(message.message);
+    // } else {
+    //   translatedMessage = "could not translate the message";
+    // }
 
     // setState(() {
     //   translatedMessage =  TranslationApi.translate(message.message, "auto", "fr") as String;
@@ -228,24 +381,26 @@ class _ChatScreenState extends State<ChatScreen> {
     // });
 
     return message.type != MESSAGE_TYPE_IMAGE
-        ? Column(children: [
-            Text(
-              message.message,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
+        ? Column(
+            children: [
+              Text(
+                message.message,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                ),
               ),
-            ),
 
-            ///translated text
-            Text(
-              message.message,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.0,
-              ),
-            ),
-          ])
+              ///translated text
+              // Text(
+              //   message.message,
+              //   style: TextStyle(
+              //     color: Colors.white,
+              //     fontSize: 18.0,
+              //   ),
+              // ),
+            ],
+          )
         : message.photoURL != null
             ? CachedImage(
                 message.photoURL,
@@ -375,7 +530,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white,
               ),
               onChanged: (val) {
-
                 setState(() {
                   (val.length > 0 && val.trim() != "")
                       ? isWriting = true
@@ -385,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> {
               decoration: InputDecoration(
                 hintText: "Type your message",
                 hintStyle: TextStyle(
-                  color: Variables.greyColor,
+                  color: Variables.greyColor, /////////////////////////////////
                 ),
                 border: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(
@@ -525,7 +679,36 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
       centerTitle: false,
-      title: Text(widget.receiver.name),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Hero(
+            tag: "profilePhoto-${widget.receiver.profilePhoto}",
+            child: Container(
+              constraints: BoxConstraints(maxHeight: 43, maxWidth: 43),
+              child: Stack(
+                children: [
+                  CachedImage(
+                    widget.receiver.profilePhoto,
+                    radius: 80,
+                    isRound: true,
+                  ),
+                  OnlineDotIndicator(uid: widget.receiver.uid),
+                ],
+              ),
+            ),
+          ),
+          // Image.network(""),
+          Flexible(
+            child: Container(
+              child: Text(
+                widget.receiver.name,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
       actions: [
         IconButton(
             icon: Icon(Icons.video_call),
@@ -564,6 +747,7 @@ class _ChatScreenState extends State<ChatScreen> {
             // String recordedText = "Press the button and start recording";
 
             return StatefulBuilder(
+              /////////////////////////////////////////////////////////////////////////
               builder: (BuildContext context, setState) {
                 return Container(
                   height: 300,
@@ -571,21 +755,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          recordedText == "" ?
-                          Text(
-                            text,
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ):
-                          Text(
-                            recordedText,
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
+                          recordedText == ""
+                              ? Text(
+                                  text,
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                )
+                              : Text(
+                                  recordedText,
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
                           /////////////////////////////////////////////////////////////////////////////////
                           AvatarGlow(
                             animate: isRecording,
@@ -615,20 +799,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                           ),
 
-                          isRecorded ?
-                          IconButton(
-                              icon: Icon(Icons.send_rounded),
-                              onPressed: () {
-                                this.setState(() {
-                                  textFieldController.text = recordedText;
-                                  isWriting = true;
-                                });
-                                Navigator.pop(context);
-                              }):
-                          IconButton(
-                            icon: Icon(Icons.cancel_schedule_send),
-                            onPressed: (){},
-                          ),
+                          isRecorded
+                              ? IconButton(
+                                  icon: Icon(Icons.send_rounded),
+                                  onPressed: () {
+                                    this.setState(() {
+                                      textFieldController.text = recordedText;
+                                      isWriting = true;
+                                    });
+                                    Navigator.pop(context);
+                                  })
+                              : IconButton(
+                                  icon: Icon(Icons.cancel_schedule_send),
+                                  onPressed: () {},
+                                ),
                         ]),
                   ),
                 );

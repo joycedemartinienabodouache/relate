@@ -55,7 +55,7 @@ class UserDetailsContainer extends StatelessWidget {
             title: ShimmeringLogo(),
             actions: <Widget>[
               FlatButton(
-                onPressed: () async => await signOut(),
+                onPressed: () => signOut(),
                 child: Text(
                   "Log Out",
                   style: TextStyle(color: Colors.white, fontSize: 12),

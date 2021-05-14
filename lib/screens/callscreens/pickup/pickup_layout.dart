@@ -7,6 +7,8 @@ import 'package:relate/resources/call_methods.dart';
 import 'package:relate/screens/HomeScreen.dart';
 import 'package:relate/screens/callscreens/pickup/pickup_screen.dart';
 
+import '../../splash_screen.dart';
+
 class PickupLayout extends StatelessWidget {
   final Widget scaffold;
   final CallMethods callMethods = CallMethods();
@@ -19,27 +21,32 @@ class PickupLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
-    return (
-        userProvider != null
-            && userProvider.getUser != null
-    )
+    return (userProvider != null && userProvider.getUser != null)
         ? StreamBuilder<DocumentSnapshot>(
-      stream: callMethods.callStream(uid: userProvider.getUser.uid),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data.data() != null) {
-          Call call = Call.fromMap(snapshot.data.data());
+            stream: callMethods.callStream(uid: userProvider.getUser.uid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data.data() != null) {
+                Call call = Call.fromMap(snapshot.data.data());
 
-          if (!call.hasDialled) {
-            return PickupScreen(call: call);//////////////////////////////////////
-          }
-        }
-        return scaffold;
-      },
-    )
-        : Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+                if (!call.hasDialled) {
+                  return PickupScreen(
+                      call: call); //////////////////////////////////////
+                }
+              }
+              return scaffold;
+            },
+          )
+        :
+
+          SplashScreen();
+
+            // Scaffold(
+            //   backgroundColor: Colors.transparent,
+            //   body: Center(
+            //         // child: Text("Pickup"),
+            //     child: CircularProgressIndicator(),
+            //   ),
+            // );
+
   }
 }

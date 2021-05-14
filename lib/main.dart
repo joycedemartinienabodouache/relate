@@ -11,6 +11,7 @@ import 'package:relate/screens/HomeScreen.dart';
 import 'package:relate/screens/LoginScreen.dart';
 import 'package:relate/screens/SearchScreen.dart';
 import 'package:relate/screens/login_verification.dart';
+import 'package:relate/screens/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,7 +68,8 @@ Test firestore db connectivity by adding a single item into the db
           future: _repository.getCurrentUser(),
           builder: (context, AsyncSnapshot<User> snapshot){
             if(snapshot.hasData){
-              return HomeScreen();
+              // return HomeScreen();
+              return SplashScreen();
             } else {
               return LoginScreen();
             }

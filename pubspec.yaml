@@ -65,6 +65,9 @@ dependencies:
   #avatar glow
   avatar_glow: ^1.2.0
 
+  #spin kit
+  flutter_spinkit: "^4.1.1"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

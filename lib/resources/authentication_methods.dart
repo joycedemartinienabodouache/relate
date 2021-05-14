@@ -88,10 +88,20 @@ class AuthMethods{
   }
 
   //disconnect from the current account
-  Future<void> signOut() async{
-    await _googleSignIn.disconnect();
-    await _googleSignIn.signOut();
-    return await _auth.signOut();
+  Future<bool> signOut() async{
+
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+
+    // await _googleSignIn.disconnect();
+    // await _googleSignIn.signOut();
+    // return await _auth.signOut();
   }
 
   Future <List<Users>> fetchAllUsers(User user) async{

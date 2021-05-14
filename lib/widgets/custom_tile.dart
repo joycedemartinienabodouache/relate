@@ -53,18 +53,20 @@ class CustomTile extends StatelessWidget {
                 child: Row (
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget> [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:<Widget> [
-                        title,
-                        SizedBox(height: 5,),
-                        Row(
-                          children: [
-                            icon ?? Container(),  //icon != null ? icon : Container
-                            subtitle,
-                          ],
-                        )
-                      ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:<Widget> [
+                          Container(child: title),
+                          SizedBox(height: 5,),
+                          Row(
+                            children: [
+                              icon ?? Container(),  //icon != null ? icon : Container
+                              subtitle,
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                     trailing ?? Container(),
                   ],
