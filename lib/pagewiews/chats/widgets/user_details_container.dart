@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:relate/enum/user_state.dart';
 import 'package:relate/models/user.dart';
 import 'package:relate/pagewiews/chats/widgets/shimmering_logo.dart';
+import 'package:relate/provider/image_upload_provider.dart';
 import 'package:relate/provider/user_provider.dart';
 import 'package:relate/resources/firebase_repository.dart';
 import 'package:relate/screens/LoginScreen.dart';
@@ -53,6 +55,7 @@ class UserDetailsContainer extends StatelessWidget {
             ),
             centerTitle: true,
             title: ShimmeringLogo(),
+            // title: Image.asset("assets/app_logo.png"),
             actions: <Widget>[
               FlatButton(
                 onPressed: () => signOut(),
@@ -71,6 +74,9 @@ class UserDetailsContainer extends StatelessWidget {
 }
 
 class UserDetailsBody extends StatelessWidget {
+
+
+
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
@@ -102,36 +108,124 @@ class UserDetailsBody extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width / 2.5,
-                height: MediaQuery.of(context).size.width / 2.5,
-                decoration: BoxDecoration(
-                  border: Border.all(
+              Stack(children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  height: MediaQuery.of(context).size.width / 2.5,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 5,
+                    ),
+                    shape: BoxShape.circle,
                     color: Colors.white,
-                    width: 5,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(user.profilePhoto),
+                    ),
                   ),
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(user.profilePhoto),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: CircleAvatar(
+                    backgroundColor: Variables.blackColor,
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      //////////////////////////////////////////implement edition of profile picture
+                      onPressed: () {
+                        ////////////////////////////////profile image update////////////////////////////////////////////////////////
+                        showModalBottomSheet(
+                            context: context, builder: ((builder) => bottomSheet()),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ]),
+              SizedBox(height: 50,),
+              Expanded(
+                child: Container(
+                  // color: Colors.blue,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Card(
+                        elevation: 10,
+                        shadowColor: Colors.blueAccent,
+                        child: Container(
+                          // height: 100,
+
+                          width: MediaQuery.of(context).size.width,
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("USERNAME", style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 18,
+                                ),),
+                                SizedBox(height: 15,),
+                                Text(user.username, style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      ),
+                      Card(
+                        elevation: 10,
+                        shadowColor: Colors.blueAccent,
+                        child: Container(
+                          // height: 100,
+
+                          width: MediaQuery.of(context).size.width,
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("EMAIL", style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 18,
+                                ),),
+                                SizedBox(height: 15,),
+                                Text(user.email, style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      ),
+
+                      // Center(
+                      //   child:
+                      //   Container(
+                      //
+                      //     // width: MediaQuery.of(context).size.width - 20,
+                      //     height: 100,
+                      //     child: Text(
+                      //       "USERNAME",
+                      //       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.blueGrey),
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 150, left: 130),
-            child: CircleAvatar(
-              backgroundColor: Variables.blackColor,
-              child: IconButton(
-                icon: Icon(Icons.edit),
-                //////////////////////////////////////////implement edition of profile picture
-                onPressed: (){},
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.only(bottom: 150, left: 130),
+          //   child:
+          // ),
         ],
       ),
     );
@@ -168,5 +262,43 @@ class UserDetailsBody extends StatelessWidget {
     //   ),
     // );
   }
-}
 
+  Widget bottomSheet() {
+    return StatefulBuilder(
+      builder: (context, setState) => Container(
+        height: 100,
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 20,
+        ),
+        child: Column(
+          children: [
+            Text(
+              "Choose your profile photo from",
+              style: TextStyle(fontSize: 20.0),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                FlatButton.icon(
+                  onPressed: null,
+                  icon: Icon(Icons.camera),
+                  label: Text("Camera"),
+                ),
+                FlatButton.icon(
+                  onPressed: null,
+                  icon: Icon(Icons.camera),
+                  label: Text("Gallery"),
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
